@@ -20,7 +20,7 @@ func sendOffer(name string) {
 	fmt.Println("Offer Name", name)
 }
 
-func offerJob(t time.Duration, name string, ch chan bool) {
+func offerJob(t time.Duration, ch chan bool, name string, offerID uint32) {
 	for {
 		next := time.Now().Add(t)
 		if next.Before(time.Now()) {
@@ -29,7 +29,7 @@ func offerJob(t time.Duration, name string, ch chan bool) {
 		first := time.After(next.Sub(time.Now()))
 
 		go func() {
-			cronJob.Every(1).Second().Do(sendOffer, name)
+			cronJob.Every(1).Second().Do(jobs[offerID].sendOffer, name)
 
 			fmt.Println(cronJob.Jobs())
 			fmt.Println(cronJob.Len())
@@ -43,24 +43,35 @@ func offerJob(t time.Duration, name string, ch chan bool) {
 	}
 }
 
-func RunJob(id uint32, name string) {
+func RunJob(offerID uint32, name string) {
 	ch := make(chan bool)
 
-	jobs[id] = struct{ sendOffer func(string) }{sendOffer: sendOffer}
+	jobs[offerID] = struct{ sendOffer func(string) }{sendOffer: sendOffer}
 
-	go offerJob(time.Second*100, name, ch)
+	go offerJob(time.Hour*2, ch, name, offerID)
 
 	<-ch
-	job, _ := jobs[id]
-	delete(jobs, id)
+	job, _ := jobs[offerID]
+	delete(jobs, offerID)
 	cronJob.Remove(job.sendOffer)
 
 	fmt.Println(cronJob.Jobs())
 	fmt.Println(cronJob.Len())
 }
 
-func StopJob() {
-	job, _ := jobs[10]
-	delete(jobs, 10)
-	cronJob.Remove(job.sendOffer)
+func StopJob(offerID uint32) {
+	fmt.Println(jobs)
+	fmt.Println(cronJob.Jobs())
+	fmt.Println(cronJob.Len())
+
+	if job, ok := jobs[offerID]; ok {
+		cronJob.Remove(job.sendOffer)
+		delete(jobs, offerID)
+	}
+
+	fmt.Println("------------")
+
+	fmt.Println(jobs)
+	fmt.Println(cronJob.Jobs())
+	fmt.Println(cronJob.Len())
 }

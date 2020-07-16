@@ -2,12 +2,15 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	. "github.com/cronjobs-service/pkg/cron-jobs"
 	. "github.com/cronjobs-service/pkg/models"
 	. "github.com/cronjobs-service/pkg/utils"
+	"github.com/gorilla/mux"
 )
 
 func StartOfferCron(w http.ResponseWriter, r *http.Request) {
@@ -36,7 +39,14 @@ func StartOfferCron(w http.ResponseWriter, r *http.Request) {
 }
 
 func StopOffer(w http.ResponseWriter, r *http.Request) {
-	StopJob()
+	vars := mux.Vars(r)
+	offerID, err := strconv.ParseUint(vars["id"], 10, 64)
+	if err != nil {
+		ERROR(w, http.StatusUnprocessableEntity, errors.New(http.StatusText(http.StatusUnprocessableEntity)))
+		return
+	}
+
+	StopJob(uint32(offerID))
 
 	JSON(w, http.StatusOK, "")
 }
