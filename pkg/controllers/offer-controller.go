@@ -36,5 +36,7 @@ func StartOfferCron(w http.ResponseWriter, r *http.Request) {
 }
 
 func StopOffer(w http.ResponseWriter, r *http.Request) {
+	StopJob()
+
 	JSON(w, http.StatusOK, "")
 }
