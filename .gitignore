@@ -1,0 +1,6 @@
+*.sqlite
+*.idea/*
+*.idea
+*.idea/.*
+.DS_Store
+gin-bin
