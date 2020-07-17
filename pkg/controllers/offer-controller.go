@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func StartOfferCron(w http.ResponseWriter, r *http.Request) {
+func StartOfferJob(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		ERROR(w, http.StatusUnprocessableEntity, err)
@@ -33,12 +33,12 @@ func StartOfferCron(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go RunJob(int(offer.ID), offer.Name, offer.StartDate, offer.EndDate)
+	go StartJob(int(offer.ID), offer.Name, offer.StartDate, offer.EndDate)
 
-	JSON(w, http.StatusOK, "")
+	JSON(w, http.StatusCreated, offer.ID)
 }
 
-func StopOffer(w http.ResponseWriter, r *http.Request) {
+func DeleteOfferJob(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	offerID, err := strconv.ParseUint(vars["id"], 10, 64)
 	if err != nil {
@@ -46,7 +46,16 @@ func StopOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	StopJob(int(offerID))
+	err = DeleteJobByID(int(offerID))
+	if err != nil {
+		ERROR(w, http.StatusNotFound, errors.New(http.StatusText(http.StatusNotFound)))
+		return
+	}
 
-	JSON(w, http.StatusOK, "")
+	JSON(w, http.StatusOK, offerID)
+}
+
+func GetJobs(w http.ResponseWriter, r *http.Request) {
+	runningJobs := GetRunningJobs()
+	JSON(w, http.StatusOK, runningJobs)
 }

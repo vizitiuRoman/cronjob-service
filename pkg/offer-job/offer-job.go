@@ -1,6 +1,7 @@
 package offer_job
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -20,7 +21,7 @@ type OfferJob struct {
 	endDate   time.Duration
 }
 
-func RunJob(offerID int, name string, startDate, endDate time.Duration) {
+func StartJob(offerID int, name string, startDate, endDate time.Duration) {
 	offerJob := &OfferJob{
 		ch:        make(chan int),
 		offerID:   offerID,
@@ -33,11 +34,20 @@ func RunJob(offerID int, name string, startDate, endDate time.Duration) {
 	cronJobs.Start()
 
 	<-offerJob.ch
-	removeJobByID(offerID)
+	_ = removeJobByID(offerID)
 }
 
-func StopJob(offerID int) {
-	removeJobByID(offerID)
+func DeleteJobByID(offerID int) error {
+	err := removeJobByID(offerID)
+	if err != nil {
+		return err
+	}
+	fmt.Println(len(cronJobs.Entries()))
+	return nil
+}
+
+func GetRunningJobs() int {
+	return len(cronJobs.Entries())
 }
 
 func cronJobWorker(offerJob *OfferJob) {
@@ -63,11 +73,11 @@ func cronJobWorker(offerJob *OfferJob) {
 	}
 }
 
-func removeJobByID(offerID int) {
+func removeJobByID(offerID int) error {
 	if cronID, ok := jobIDs[offerID]; ok {
 		cronJobs.Remove(cronID)
 		delete(jobIDs, offerID)
+		return nil
 	}
-
-	fmt.Println(len(cronJobs.Entries()))
+	return errors.New("Not Found")
 }

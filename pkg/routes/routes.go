@@ -12,8 +12,11 @@ func InitRoutes() *mux.Router {
 
 	// Home
 	router.HandleFunc("/", MiddlewareJSON(GetHome)).Methods("GET")
-	router.HandleFunc("/start-offer", MiddlewareJSON(StartOfferCron)).Methods("POST")
-	router.HandleFunc("/stop-offer/{id}", MiddlewareJSON(StopOffer)).Methods("POST")
+
+	// Offer
+	router.HandleFunc("/api/jobs", MiddlewareJSON(GetJobs)).Methods("GET")
+	router.HandleFunc("/api/offer", MiddlewareJSON(StartOfferJob)).Methods("POST")
+	router.HandleFunc("/api/offer/{id}", MiddlewareJSON(DeleteOfferJob)).Methods("DELETE")
 
 	return router
 }
