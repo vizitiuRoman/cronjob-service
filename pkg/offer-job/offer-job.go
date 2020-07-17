@@ -28,6 +28,7 @@ func RunJob(offerID int, name string, startDate, endDate time.Duration) {
 		startDate: startDate,
 		endDate:   endDate,
 	}
+
 	go cronJobWorker(offerJob)
 	cronJobs.Start()
 
