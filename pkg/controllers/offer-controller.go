@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
-	. "github.com/cronjobs-service/pkg/cron-jobs"
 	. "github.com/cronjobs-service/pkg/models"
+	. "github.com/cronjobs-service/pkg/offer-job"
 	. "github.com/cronjobs-service/pkg/utils"
 	"github.com/gorilla/mux"
 )
@@ -33,7 +33,7 @@ func StartOfferCron(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	go RunJob(offer.ID, offer.Name)
+	go RunJob(int(offer.ID), offer.Name, offer.StartDate, offer.EndDate)
 
 	JSON(w, http.StatusOK, "")
 }
@@ -46,7 +46,7 @@ func StopOffer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	StopJob(uint32(offerID))
+	StopJob(int(offerID))
 
 	JSON(w, http.StatusOK, "")
 }
