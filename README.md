@@ -3,8 +3,8 @@ go build -trimpath -gcflags=-trimpath=%CD% -asmflags=-trimpath=%CD% -ldflags "-s
 
 // Push to docker hub
 
-docker build -t vizitiuroman/cronjobs-service .
+docker build -t vizitiuroman/cronjob-service .
 
-docker tag vizitiuroman/cronjobs-service vizitiuroman/cronjobs-service:1.3.2
+docker tag vizitiuroman/cronjob-service vizitiuroman/cronjob-service:1.3.2
 
-docker push vizitiuroman/cronjobs-service:1.3.2
+docker push vizitiuroman/cronjob-service:1.3.2

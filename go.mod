@@ -1,4 +1,4 @@
-module github.com/cronjobs-service
+module github.com/cronjob-service
 
 go 1.14
 

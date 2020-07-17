@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	. "github.com/cronjobs-service/pkg/routes"
+	. "github.com/cronjob-service/pkg/routes"
 	"github.com/joho/godotenv"
 )
 

@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
-	. "github.com/cronjobs-service/pkg/models"
-	. "github.com/cronjobs-service/pkg/offer-job"
-	. "github.com/cronjobs-service/pkg/utils"
+	. "github.com/cronjob-service/pkg/models"
+	. "github.com/cronjob-service/pkg/offer-job"
+	. "github.com/cronjob-service/pkg/utils"
 	"github.com/gorilla/mux"
 )
 

@@ -1,10 +1,10 @@
 package routes
 
 import (
-	. "github.com/cronjobs-service/pkg/middlewares"
+	. "github.com/cronjob-service/pkg/middlewares"
 	"github.com/gorilla/mux"
 
-	. "github.com/cronjobs-service/pkg/controllers"
+	. "github.com/cronjob-service/pkg/controllers"
 )
 
 func InitRoutes() *mux.Router {
