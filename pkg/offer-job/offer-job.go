@@ -21,6 +21,10 @@ type OfferJob struct {
 	endDate   time.Duration
 }
 
+func init() {
+	cronJobs.Start()
+}
+
 func StartJob(offerID int, name string, startDate, endDate time.Duration) {
 	offerJob := &OfferJob{
 		ch:        make(chan int),
@@ -31,7 +35,6 @@ func StartJob(offerID int, name string, startDate, endDate time.Duration) {
 	}
 
 	go cronJobWorker(offerJob)
-	cronJobs.Start()
 
 	<-offerJob.ch
 	fmt.Println("Started jobs", len(cronJobs.Entries()))
