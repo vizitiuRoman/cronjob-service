@@ -37,8 +37,8 @@ func StartJob(offerID int, name string, startDate, endDate time.Duration) {
 	go cronJobWorker(offerJob)
 
 	<-offerJob.ch
-	fmt.Println("Started jobs", len(cronJobs.Entries()))
 	_ = removeJobByID(offerID)
+	fmt.Println("Started jobs", len(cronJobs.Entries()))
 }
 
 func DeleteJobByID(offerID int) error {
@@ -62,20 +62,17 @@ func cronJobWorker(offerJob *OfferJob) {
 		}
 		first := time.After(next.Sub(time.Now()))
 
-		go func() {
-			cronID, err := cronJobs.AddFunc("@every 0h0m1s", func() {
-				fmt.Println("Offer job id", offerJob.offerID)
-			})
-			if err != nil {
-				fmt.Printf("cronJobWorker error: %v", err)
-				close(offerJob.ch)
-				return
-			}
+		cronID, err := cronJobs.AddFunc("@every 0h0m1s", func() {
+		})
+		if err != nil {
+			fmt.Printf("cronJobWorker error: %v", err)
+			close(offerJob.ch)
+			return
+		}
 
-			jobIDs[offerJob.offerID] = cronID
+		jobIDs[offerJob.offerID] = cronID
+		fmt.Println("Started jobs", len(cronJobs.Entries()))
 
-			fmt.Println("Started jobs", len(cronJobs.Entries()))
-		}()
 		select {
 		case <-first:
 			close(offerJob.ch)
