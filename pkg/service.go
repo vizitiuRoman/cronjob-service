@@ -26,6 +26,6 @@ func RunCronJobsService() {
 	//ConnectDB()
 	routes := InitRoutes().Handler
 
-	fmt.Println("CronJobs-service started", port)
+	fmt.Println("CronJob-service started", port)
 	log.Fatal(fasthttp.ListenAndServe(":"+port, routes))
 }

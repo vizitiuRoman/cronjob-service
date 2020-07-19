@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	. "github.com/cronjob-service/pkg/offer-client"
 	"github.com/robfig/cron/v3"
 )
 
@@ -35,8 +36,8 @@ func NewOfferJob(offerID int, name string, repeatNumb uint8, repeatTime string) 
 	}
 }
 
-func StartJob(offerJob *OfferJob) {
-	go cronJobWorker(offerJob)
+func StartJob(offerJob *OfferJob, offers []byte) {
+	go cronJobWorker(offerJob, offers)
 
 	<-offerJob.ch
 	_ = removeJobByID(offerJob.offerID)
@@ -56,23 +57,23 @@ func GetRunningJobs() int {
 	return len(cronJobs.Entries())
 }
 
-func cronJobWorker(offerJob *OfferJob) {
+func cronJobWorker(offerJob *OfferJob, offers []byte) {
 	for {
 		var repeated uint8 = 0
 		limitCh := make(chan bool)
 
 		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
 		fmt.Println(spec)
-		cronID, err := cronJobs.AddFunc("* * * * *", func() {
-			fmt.Println(repeated)
+		cronID, err := cronJobs.AddFunc("@every 0h0m10s", func() {
 			if repeated == offerJob.repeatNumb {
 				limitCh <- true
 				return
 			}
+			SendOffer(offers)
 			repeated++
 		})
 		if err != nil {
-			fmt.Printf("cronJobWorker error: %v", err)
+			fmt.Printf("Error cronJobWorker: %v", err)
 			close(offerJob.ch)
 			return
 		}

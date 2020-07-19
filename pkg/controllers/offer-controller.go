@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/json"
 	"strconv"
 
@@ -19,6 +20,13 @@ func StartOfferJob(ctx *fasthttp.RequestCtx) {
 	}
 
 	for _, offer := range offers {
+		offersBytes := new(bytes.Buffer)
+		err := json.NewEncoder(offersBytes).Encode(offers)
+		if err != nil {
+			ERROR(ctx, fasthttp.StatusUnprocessableEntity, err)
+			return
+		}
+
 		offer.Prepare()
 		err = offer.Validate()
 		if err != nil {
@@ -31,7 +39,7 @@ func StartOfferJob(ctx *fasthttp.RequestCtx) {
 			offer.OfferData.RepeatNumb,
 			offer.OfferData.RepeatTime,
 		)
-		go StartJob(offerJob)
+		go StartJob(offerJob, offersBytes.Bytes())
 	}
 
 	JSON(ctx, fasthttp.StatusOK, offers)

@@ -24,35 +24,35 @@ type Offer struct {
 }
 
 type offerData struct {
-	StartDate      string
-	EndDate        string
-	CronExpression string
-	RepeatNumb     uint8
-	RepeatTime     string
+	StartDate      string `json:"startDate"`
+	EndDate        string `json:"endDate"`
+	CronExpression string `json:"cronExpression"`
+	RepeatNumb     uint8  `json:"repeatNumb"`
+	RepeatTime     string `json:"repeatTime"`
 }
 
 type companies struct {
-	Idno            string
+	Idno            string `json:"idno"`
 	CompaniesOffers map[string]struct {
-		Email  string
-		Sum    string
-		Period string
+		Email  string `json:"email"`
+		Sum    string `json:"sum"`
+		Period string `json:"period"`
 	}
 }
 
 type action struct {
 	I18n struct {
-		Ro string
-		Ru string
-		En string
-	}
-	Value string
+		Ro string `json:"ro"`
+		Ru string `json:"ru"`
+		En string `json:"en"`
+	} `json:"i18n"`
+	Value string `json:"value"`
 }
 
 type template struct {
-	Name   string
-	Type   string
-	Schema string
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+	Schema string `json:"schema"`
 }
 
 func (offer *Offer) Prepare() {
