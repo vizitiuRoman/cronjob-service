@@ -27,9 +27,7 @@ func RunCronJobsService() {
 		port = "4041"
 	}
 
-	//ConnectDB()
 	routes := InitRoutes().Handler
-
 	listenCh := make(chan error, 1)
 	go func(listen chan error) {
 		fmt.Println("CronJob-service started", port)
