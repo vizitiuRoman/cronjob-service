@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/valyala/fasthttp"
 
@@ -12,6 +14,8 @@ import (
 )
 
 func RunCronJobsService() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Error load env", err)
@@ -26,6 +30,24 @@ func RunCronJobsService() {
 	//ConnectDB()
 	routes := InitRoutes().Handler
 
-	fmt.Println("CronJob-service started", port)
-	log.Fatal(fasthttp.ListenAndServe(":"+port, routes))
+	listenCh := make(chan error, 1)
+	go func(listen chan error) {
+		fmt.Println("CronJob-service started", port)
+		listen <- fasthttp.ListenAndServe(":"+port, routes)
+	}(listenCh)
+
+	osSignals := make(chan os.Signal, 1)
+	signal.Notify(osSignals, syscall.SIGINT, syscall.SIGTERM)
+
+	for {
+		select {
+		case err := <-listenCh:
+			if err != nil {
+				log.Fatalf("Listener error: %s", err)
+			}
+			os.Exit(0)
+		case err := <-osSignals:
+			log.Fatalf("Shutdown signal: %s", err)
+		}
+	}
 }
