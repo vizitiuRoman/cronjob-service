@@ -1,4 +1,3 @@
-
 go build -trimpath -gcflags=-trimpath=%CD% -asmflags=-trimpath=%CD% -ldflags "-s -w"
 
 // Push to docker hub
