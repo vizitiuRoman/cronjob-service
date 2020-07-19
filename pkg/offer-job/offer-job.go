@@ -41,7 +41,6 @@ func StartJob(offerJob *OfferJob, offers []byte) {
 
 	<-offerJob.ch
 	_ = removeJobByID(offerJob.offerID)
-	fmt.Println("Started jobs", len(cronJobs.Entries()))
 }
 
 func DeleteJobByID(offerID int) error {
@@ -49,7 +48,6 @@ func DeleteJobByID(offerID int) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("Started jobs", len(cronJobs.Entries()))
 	return nil
 }
 
@@ -62,9 +60,8 @@ func cronJobWorker(offerJob *OfferJob, offers []byte) {
 		var repeated uint8 = 0
 		limitCh := make(chan bool)
 
-		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
-		fmt.Println(spec)
-		cronID, err := cronJobs.AddFunc("@every 0h0m10s", func() {
+		cronExpression := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
+		cronID, err := cronJobs.AddFunc(cronExpression, func() {
 			if repeated == offerJob.repeatNumb {
 				limitCh <- true
 				return
@@ -72,14 +69,13 @@ func cronJobWorker(offerJob *OfferJob, offers []byte) {
 			SendOffer(offers)
 			repeated++
 		})
+
 		if err != nil {
 			fmt.Printf("Error cronJobWorker: %v", err)
 			close(offerJob.ch)
 			return
 		}
-
 		jobIDs[offerJob.offerID] = cronID
-		fmt.Println("Started jobs", len(cronJobs.Entries()))
 
 		select {
 		case <-limitCh:

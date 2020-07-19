@@ -1,7 +1,6 @@
 package offer_client
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
