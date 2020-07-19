@@ -60,8 +60,8 @@ func cronJobWorker(offerJob *OfferJob, offers []byte) {
 		var repeated uint8 = 0
 		limitCh := make(chan bool)
 
-		cronExpression := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
-		cronID, err := cronJobs.AddFunc(cronExpression, func() {
+		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
+		cronID, err := cronJobs.AddFunc(spec, func() {
 			if repeated == offerJob.repeatNumb {
 				limitCh <- true
 				return

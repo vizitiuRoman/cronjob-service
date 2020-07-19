@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "1ad3cfc9-d6ea-4683-962e-209df36c7bed",
+		"name": "cronjob-service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "offer job",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"id\": 3,\n        \"title\": \"QWe\",\n        \"category\": \"Credite\",\n        \"banners\": \"undefined\",\n        \"actions\": [\n            {\n                \"i18n\": {\n                    \"ro\": \"Accept\",\n                    \"ru\": \"Принять\",\n                    \"en\": \"Accept\"\n                },\n                \"value\": \"accept\"\n            },\n            {\n                \"i18n\": {\n                    \"ro\": \"Reject\",\n                    \"ru\": \"Отклонить\",\n                    \"en\": \"Reject\"\n                },\n                \"value\": \"reject\"\n            }\n        ],\n        \"offerData\": {\n            \"startDate\": \"2020-04-23T14:50:40.001Z\",\n            \"endDate\": \"2020-11-29T14:50:45.000Z\",\n            \"cronExpression\": \"days\",\n            \"repeatNumb\": 10,\n            \"repeatTime\": \"*\"\n        },\n        \"companies\": [\n            {\n                \"idno\": \"1005600022213\",\n                \"CompaniesOffers\": {\n                    \"data\": {\n                        \"email\": \"tu21@maib.md\",\n                        \"sum\": \"3\",\n                        \"period\": \"12\",\n                        \"contrName\": \"contrName state\",\n                        \"dealDesc\": \"Deal desc STATE\"\n                    }\n                }\n            }\n        ],\n        \"Template\": {\n            \"name\": \"Test\",\n            \"type\": \"json\",\n            \"schema\": \"{\\\"ro\\\":\\\"CRON {{sum}}\\\",\\\"ru\\\":\\\"Salut {{sum}}\\\",\\\"en\\\":\\\"Salut {{sum}}\\\"}\"\n        },\n        \"imgSrc\": \"https://www.talkwalker.com/images/2020/blog-headers/image-analysis.png\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:4040/api/offer",
+					"host": [
+						"localhost"
+					],
+					"port": "4040",
+					"path": [
+						"api",
+						"offer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete offer job",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:4040/api/offer/",
+					"host": [
+						"localhost"
+					],
+					"port": "4040",
+					"path": [
+						"api",
+						"offer",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get offer jobs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:4040/api/jobs",
+					"host": [
+						"localhost"
+					],
+					"port": "4040",
+					"path": [
+						"api",
+						"jobs"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update offer job",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"id\": 1,\n        \"title\": \"QWe\",\n        \"category\": \"Credite\",\n        \"banners\": \"undefined\",\n        \"actions\": [\n            {\n                \"i18n\": {\n                    \"ro\": \"Accept\",\n                    \"ru\": \"Принять\",\n                    \"en\": \"Accept\"\n                },\n                \"value\": \"accept\"\n            },\n            {\n                \"i18n\": {\n                    \"ro\": \"Reject\",\n                    \"ru\": \"Отклонить\",\n                    \"en\": \"Reject\"\n                },\n                \"value\": \"reject\"\n            }\n        ],\n        \"offerData\": {\n            \"startDate\": \"2020-04-23T14:50:40.001Z\",\n            \"endDate\": \"2020-11-29T14:50:45.000Z\",\n            \"cronExpression\": \"days\",\n            \"repeatNumb\": 10,\n            \"repeatTime\": \"*\"\n        },\n        \"companies\": [\n            {\n                \"idno\": \"1005600022213\",\n                \"CompaniesOffers\": {\n                    \"data\": {\n                        \"email\": \"tu21@maib.md\",\n                        \"sum\": \"1\",\n                        \"period\": \"12\",\n                        \"contrName\": \"contrName state\",\n                        \"dealDesc\": \"Deal desc STATE\"\n                    }\n                }\n            }\n        ],\n        \"Template\": {\n            \"name\": \"Test\",\n            \"type\": \"json\",\n            \"schema\": \"{\\\"ro\\\":\\\"UPDATED CRON {{sum}}\\\",\\\"ru\\\":\\\"Salut {{sum}}\\\",\\\"en\\\":\\\"Salut {{sum}}\\\"}\"\n        },\n        \"imgSrc\": \"https://www.talkwalker.com/images/2020/blog-headers/image-analysis.png\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:4040/api/offer",
+					"host": [
+						"localhost"
+					],
+					"port": "4040",
+					"path": [
+						"api",
+						"offer"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

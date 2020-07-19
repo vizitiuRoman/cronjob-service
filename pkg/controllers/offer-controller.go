@@ -42,12 +42,47 @@ func StartOfferJob(ctx *fasthttp.RequestCtx) {
 		go StartJob(offerJob, offersBytes.Bytes())
 	}
 
-	JSON(ctx, fasthttp.StatusOK, offers)
+	JSON(ctx, fasthttp.StatusOK, true)
 }
 
-func GetJobs(ctx *fasthttp.RequestCtx) {
-	runningJobs := GetRunningJobs()
-	JSON(ctx, fasthttp.StatusOK, runningJobs)
+func UpdateOfferJob(ctx *fasthttp.RequestCtx) {
+	var offers []Offer
+	err := json.Unmarshal(ctx.PostBody(), &offers)
+	if err != nil {
+		ERROR(ctx, fasthttp.StatusUnprocessableEntity, err)
+		return
+	}
+
+	for _, offer := range offers {
+		offersBytes := new(bytes.Buffer)
+		err := json.NewEncoder(offersBytes).Encode(offers)
+		if err != nil {
+			ERROR(ctx, fasthttp.StatusUnprocessableEntity, err)
+			return
+		}
+
+		offer.Prepare()
+		err = offer.Validate()
+		if err != nil {
+			ERROR(ctx, fasthttp.StatusBadRequest, err)
+			return
+		}
+
+		err = DeleteJobByID(int(offer.ID))
+		if err != nil {
+			ERROR(ctx, fasthttp.StatusNotFound, err)
+			return
+		}
+
+		offerJob := NewOfferJob(int(offer.ID),
+			offer.Title,
+			offer.OfferData.RepeatNumb,
+			offer.OfferData.RepeatTime,
+		)
+		go StartJob(offerJob, offersBytes.Bytes())
+	}
+
+	JSON(ctx, fasthttp.StatusOK, true)
 }
 
 func DeleteOfferJob(ctx *fasthttp.RequestCtx) {
@@ -62,4 +97,9 @@ func DeleteOfferJob(ctx *fasthttp.RequestCtx) {
 		return
 	}
 	JSON(ctx, fasthttp.StatusOK, offerID)
+}
+
+func GetJobs(ctx *fasthttp.RequestCtx) {
+	runningJobs := GetRunningJobs()
+	JSON(ctx, fasthttp.StatusOK, runningJobs)
 }

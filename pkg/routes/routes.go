@@ -10,6 +10,7 @@ func InitRoutes() *Router {
 
 	router.GET("/api/jobs", GetJobs)
 	router.POST("/api/offer", StartOfferJob)
+	router.PUT("/api/offer", UpdateOfferJob)
 	router.DELETE("/api/offer/{id}", DeleteOfferJob)
 
 	return router
