@@ -20,22 +20,29 @@ func StartOfferJob(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var offer Offer
-	err = json.Unmarshal(body, &offer)
+	var offers []Offer
+	err = json.Unmarshal(body, &offers)
 	if err != nil {
 		ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
 
-	err = offer.Validate()
-	if err != nil {
-		ERROR(w, http.StatusBadRequest, err)
-		return
+	for _, offer := range offers {
+		offer.Prepare()
+		err = offer.Validate()
+		if err != nil {
+			ERROR(w, http.StatusBadRequest, err)
+			return
+		}
+
+		offerJob := NewOfferJob(int(offer.ID),
+			offer.Title,
+			offer.OfferData.RepeatNumb,
+			offer.OfferData.RepeatTime,
+		)
+		go StartJob(offerJob)
 	}
-
-	go StartJob(int(offer.ID), offer.Name, offer.StartDate, offer.EndDate)
-
-	JSON(w, http.StatusCreated, offer.ID)
+	JSON(w, http.StatusCreated, offers)
 }
 
 func DeleteOfferJob(w http.ResponseWriter, r *http.Request) {

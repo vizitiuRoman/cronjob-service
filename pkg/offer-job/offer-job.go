@@ -3,7 +3,6 @@ package offer_job
 import (
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/robfig/cron/v3"
 )
@@ -14,30 +13,33 @@ var (
 )
 
 type OfferJob struct {
-	ch        chan int
-	offerID   int
-	name      string
-	startDate time.Duration
-	endDate   time.Duration
+	ch         chan int
+	offerID    int
+	name       string
+	repeatNumb uint8
+	repeatTime string
 }
 
 func init() {
 	cronJobs.Start()
+	cronJobs.Location()
 }
 
-func StartJob(offerID int, name string, startDate, endDate time.Duration) {
-	offerJob := &OfferJob{
-		ch:        make(chan int),
-		offerID:   offerID,
-		name:      name,
-		startDate: startDate,
-		endDate:   endDate,
+func NewOfferJob(offerID int, name string, repeatNumb uint8, repeatTime string) *OfferJob {
+	return &OfferJob{
+		ch:         make(chan int),
+		offerID:    offerID,
+		name:       name,
+		repeatNumb: repeatNumb,
+		repeatTime: repeatTime,
 	}
+}
 
+func StartJob(offerJob *OfferJob) {
 	go cronJobWorker(offerJob)
 
 	<-offerJob.ch
-	_ = removeJobByID(offerID)
+	_ = removeJobByID(offerJob.offerID)
 	fmt.Println("Started jobs", len(cronJobs.Entries()))
 }
 
@@ -56,13 +58,18 @@ func GetRunningJobs() int {
 
 func cronJobWorker(offerJob *OfferJob) {
 	for {
-		next := time.Now().Add(time.Second * 10)
-		if next.Before(time.Now()) {
-			next = next.Add(0)
-		}
-		first := time.After(next.Sub(time.Now()))
+		var repeated uint8 = 0
+		limitCh := make(chan bool)
 
-		cronID, err := cronJobs.AddFunc("@every 0h0m1s", func() {
+		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
+		fmt.Println(spec)
+		cronID, err := cronJobs.AddFunc("* * * * *", func() {
+			fmt.Println(repeated)
+			if repeated == offerJob.repeatNumb {
+				limitCh <- true
+				return
+			}
+			repeated++
 		})
 		if err != nil {
 			fmt.Printf("cronJobWorker error: %v", err)
@@ -74,7 +81,7 @@ func cronJobWorker(offerJob *OfferJob) {
 		fmt.Println("Started jobs", len(cronJobs.Entries()))
 
 		select {
-		case <-first:
+		case <-limitCh:
 			close(offerJob.ch)
 			return
 		}
