@@ -1,4 +1,4 @@
-package offer_client
+package client
 
 import (
 	"fmt"

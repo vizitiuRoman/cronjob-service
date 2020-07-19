@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	. "github.com/cronjob-service/pkg/offer-client"
+	. "github.com/cronjob-service/pkg/client"
 	"github.com/robfig/cron/v3"
 )
 
@@ -38,7 +38,6 @@ func NewOfferJob(offerID int, name string, repeatNumb uint8, repeatTime string) 
 
 func StartJob(offerJob *OfferJob, offers []byte) {
 	go cronJobWorker(offerJob, offers)
-
 	<-offerJob.ch
 	_ = removeJobByID(offerJob.offerID)
 }
