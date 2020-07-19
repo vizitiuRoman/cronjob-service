@@ -2,26 +2,27 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
-	"net/http"
+
+	"github.com/valyala/fasthttp"
 )
 
-func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
-	w.WriteHeader(statusCode)
-	err := json.NewEncoder(w).Encode(data)
-	if err != nil {
-		fmt.Fprintf(w, "%s", err.Error())
+func JSON(ctx *fasthttp.RequestCtx, statusCode int, data interface{}) {
+	ctx.SetContentType("application/json")
+	ctx.Response.SetStatusCode(statusCode)
+	if err := json.NewEncoder(ctx).Encode(data); err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 	}
 }
 
-func ERROR(w http.ResponseWriter, statusCode int, err error) {
+func ERROR(ctx *fasthttp.RequestCtx, statusCode int, err error) {
+	ctx.SetContentType("application/json")
 	if err != nil {
-		JSON(w, statusCode, struct {
+		JSON(ctx, statusCode, struct {
 			Error string `json:"error"`
 		}{
 			Error: err.Error(),
 		})
 		return
 	}
-	JSON(w, http.StatusBadRequest, err)
+	JSON(ctx, fasthttp.StatusBadRequest, fasthttp.StatusMessage(fasthttp.StatusBadRequest))
 }

@@ -1,22 +1,16 @@
 package routes
 
 import (
-	. "github.com/cronjob-service/pkg/middlewares"
-	"github.com/gorilla/mux"
-
 	. "github.com/cronjob-service/pkg/controllers"
+	. "github.com/fasthttp/router"
 )
 
-func InitRoutes() *mux.Router {
-	router := mux.NewRouter()
+func InitRoutes() *Router {
+	router := New()
 
-	// Home
-	router.HandleFunc("/", MiddlewareJSON(GetHome)).Methods("GET")
-
-	// Offer
-	router.HandleFunc("/api/jobs", MiddlewareJSON(GetJobs)).Methods("GET")
-	router.HandleFunc("/api/offer", MiddlewareJSON(StartOfferJob)).Methods("POST")
-	router.HandleFunc("/api/offer/{id}", MiddlewareJSON(DeleteOfferJob)).Methods("DELETE")
+	router.GET("/api/jobs", GetJobs)
+	router.POST("/api/offer", StartOfferJob)
+	router.DELETE("/api/offer/{id}", DeleteOfferJob)
 
 	return router
 }

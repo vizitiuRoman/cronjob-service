@@ -2,28 +2,19 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
-	"io/ioutil"
-	"net/http"
 	"strconv"
 
 	. "github.com/cronjob-service/pkg/models"
 	. "github.com/cronjob-service/pkg/offer-job"
 	. "github.com/cronjob-service/pkg/utils"
-	"github.com/gorilla/mux"
+	"github.com/valyala/fasthttp"
 )
 
-func StartOfferJob(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		ERROR(w, http.StatusUnprocessableEntity, err)
-		return
-	}
-
+func StartOfferJob(ctx *fasthttp.RequestCtx) {
 	var offers []Offer
-	err = json.Unmarshal(body, &offers)
+	err := json.Unmarshal(ctx.PostBody(), &offers)
 	if err != nil {
-		ERROR(w, http.StatusUnprocessableEntity, err)
+		ERROR(ctx, fasthttp.StatusUnprocessableEntity, err)
 		return
 	}
 
@@ -31,7 +22,7 @@ func StartOfferJob(w http.ResponseWriter, r *http.Request) {
 		offer.Prepare()
 		err = offer.Validate()
 		if err != nil {
-			ERROR(w, http.StatusBadRequest, err)
+			ERROR(ctx, fasthttp.StatusBadRequest, err)
 			return
 		}
 
@@ -42,27 +33,25 @@ func StartOfferJob(w http.ResponseWriter, r *http.Request) {
 		)
 		go StartJob(offerJob)
 	}
-	JSON(w, http.StatusCreated, offers)
+
+	JSON(ctx, fasthttp.StatusOK, offers)
 }
 
-func DeleteOfferJob(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	offerID, err := strconv.ParseUint(vars["id"], 10, 64)
+func GetJobs(ctx *fasthttp.RequestCtx) {
+	runningJobs := GetRunningJobs()
+	JSON(ctx, fasthttp.StatusOK, runningJobs)
+}
+
+func DeleteOfferJob(ctx *fasthttp.RequestCtx) {
+	offerID, err := strconv.ParseInt(ctx.UserValue("id").(string), 10, 64)
 	if err != nil {
-		ERROR(w, http.StatusUnprocessableEntity, errors.New(http.StatusText(http.StatusUnprocessableEntity)))
+		ERROR(ctx, fasthttp.StatusUnprocessableEntity, err)
 		return
 	}
-
 	err = DeleteJobByID(int(offerID))
 	if err != nil {
-		ERROR(w, http.StatusNotFound, errors.New(http.StatusText(http.StatusNotFound)))
+		ERROR(ctx, fasthttp.StatusNotFound, err)
 		return
 	}
-
-	JSON(w, http.StatusOK, offerID)
-}
-
-func GetJobs(w http.ResponseWriter, r *http.Request) {
-	runningJobs := GetRunningJobs()
-	JSON(w, http.StatusOK, runningJobs)
+	JSON(ctx, fasthttp.StatusOK, offerID)
 }

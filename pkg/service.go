@@ -3,8 +3,9 @@ package pkg
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+
+	"github.com/valyala/fasthttp"
 
 	. "github.com/cronjob-service/pkg/routes"
 	"github.com/joho/godotenv"
@@ -23,8 +24,8 @@ func RunCronJobsService() {
 	}
 
 	//ConnectDB()
-	routes := InitRoutes()
+	routes := InitRoutes().Handler
 
 	fmt.Println("CronJobs-service started", port)
-	log.Fatal(http.ListenAndServe(":"+port, routes))
+	log.Fatal(fasthttp.ListenAndServe(":"+port, routes))
 }
