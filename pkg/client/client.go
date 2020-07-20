@@ -22,7 +22,5 @@ func SendOffer(offers []byte) {
 	if err != nil {
 		fmt.Printf("Error SendOffer: %s", err)
 	}
-
-	bodyBytes := res.Body()
-	fmt.Println(string(bodyBytes))
+	fmt.Println(string(res.Body()))
 }

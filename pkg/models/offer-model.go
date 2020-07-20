@@ -60,6 +60,16 @@ func (offer *Offer) Prepare() {
 	offer.Category = html.EscapeString(strings.TrimSpace(offer.Category))
 	offer.Banners = html.EscapeString(strings.TrimSpace(offer.Banners))
 	offer.ImgSrc = html.EscapeString(strings.TrimSpace(offer.ImgSrc))
+	offer.OfferData.StartDate = html.EscapeString(strings.TrimSpace(offer.OfferData.StartDate))
+	offer.OfferData.EndDate = html.EscapeString(strings.TrimSpace(offer.OfferData.EndDate))
+	offer.OfferData.CronExpression = html.EscapeString(strings.TrimSpace(offer.OfferData.CronExpression))
+	offer.OfferData.RepeatTime = html.EscapeString(strings.TrimSpace(offer.OfferData.RepeatTime))
+	offer.Template.Name = html.EscapeString(strings.TrimSpace(offer.Template.Name))
+	offer.Template.Type = html.EscapeString(strings.TrimSpace(offer.Template.Type))
+	offer.Template.Schema = html.EscapeString(strings.TrimSpace(offer.Template.Schema))
+	for i, _ := range offer.Companies {
+		offer.Companies[i].Idno = html.EscapeString(strings.TrimSpace(offer.Companies[i].Idno))
+	}
 }
 
 func (offer *Offer) Validate() error {
@@ -76,10 +86,10 @@ func (offer *Offer) Validate() error {
 		return errors.New("Required Image")
 	}
 	if offer.OfferData.StartDate == "" {
-		return errors.New("Required Image")
+		return errors.New("Required StartDate")
 	}
 	if offer.OfferData.EndDate == "" {
-		return errors.New("Required Image")
+		return errors.New("Required EndDate")
 	}
 	if offer.OfferData.CronExpression == "" {
 		return errors.New("Required CronExression")
@@ -100,16 +110,17 @@ func (offer *Offer) Validate() error {
 		if company.Idno == "" {
 			return errors.New("Required Company Idno")
 		}
-		if _, ok := company.CompaniesOffers["data"]; !ok {
+		data, ok := company.CompaniesOffers["data"]
+		if !ok {
 			return errors.New("Required CompaniesOffers")
 		}
-		if company.CompaniesOffers["data"].Email == "" {
-			return errors.New("Required CompaniesOffers email")
+		if data.Email == "" {
+			return errors.New("Required CompaniesOffers Email")
 		}
-		if company.CompaniesOffers["data"].Sum == "" {
+		if data.Sum == "" {
 			return errors.New("Required CompaniesOffers Sum")
 		}
-		if company.CompaniesOffers["data"].Period == "" {
+		if data.Period == "" {
 			return errors.New("Required CompaniesOffers Period")
 		}
 	}
