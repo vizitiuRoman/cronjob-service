@@ -3,7 +3,7 @@ FROM golang:alpine as builder
 # ENV GO111MODULE=on
 
 # Add Maintainer info
-LABEL maintainer="Readcast"
+LABEL maintainer="Vizitiu Roman vizitiuroman.md@gmail.com"
 
 # Install git.
 # Git is required for fetching the dependencies.
