@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	. "github.com/cronjob-service/pkg/client"
 	"github.com/robfig/cron/v3"
 )
 
@@ -58,12 +59,13 @@ func (offerJob *OfferJob) StartJob() {
 
 func (offerJob *OfferJob) cronJobWorker() {
 	for {
-		cronID, err := cronJob.AddFunc("@every 0h0m1s", func() {
+		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
+		cronID, err := cronJob.AddFunc(spec, func() {
 			if offerJob.repeatedNumb == offerJob.repeatNumb {
 				offerJob.ch <- true
 				return
 			}
-			fmt.Println("GOOD", offerJob.OfferID)
+			SendOffer(offerJob.offers)
 			offerJob.repeatedNumb++
 		})
 
