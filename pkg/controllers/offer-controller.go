@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	. "github.com/cronjob-service/pkg/models"
-	. "github.com/cronjob-service/pkg/offer-job"
 	. "github.com/cronjob-service/pkg/utils"
 	"github.com/valyala/fasthttp"
 )
@@ -38,8 +37,9 @@ func StartOfferJob(ctx *fasthttp.RequestCtx) {
 			int(offer.ID),
 			offer.OfferData.RepeatNumb,
 			offer.OfferData.RepeatTime,
+			offersBytes.Bytes(),
 		)
-		go StartJob(offerJob, offersBytes.Bytes())
+		go offerJob.StartJob()
 	}
 
 	JSON(ctx, fasthttp.StatusOK, true)
@@ -78,8 +78,9 @@ func UpdateOfferJob(ctx *fasthttp.RequestCtx) {
 			int(offer.ID),
 			offer.OfferData.RepeatNumb,
 			offer.OfferData.RepeatTime,
+			offersBytes.Bytes(),
 		)
-		go StartJob(offerJob, offersBytes.Bytes())
+		go offerJob.StartJob()
 	}
 
 	JSON(ctx, fasthttp.StatusOK, true)
@@ -91,6 +92,7 @@ func DeleteOfferJob(ctx *fasthttp.RequestCtx) {
 		ERROR(ctx, fasthttp.StatusUnprocessableEntity, err)
 		return
 	}
+
 	err = DeleteJobByID(int(offerID))
 	if err != nil {
 		ERROR(ctx, fasthttp.StatusNotFound, err)
@@ -100,6 +102,6 @@ func DeleteOfferJob(ctx *fasthttp.RequestCtx) {
 }
 
 func GetJobs(ctx *fasthttp.RequestCtx) {
-	runningJobs := GetRunningJobs()
-	JSON(ctx, fasthttp.StatusOK, runningJobs)
+	entries := GetRunningJobs()
+	JSON(ctx, fasthttp.StatusOK, entries)
 }
