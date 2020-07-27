@@ -34,8 +34,8 @@ func StartOfferJob(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		offerJob := NewOfferJob(int(offer.ID),
-			offer.Title,
+		offerJob := NewOfferJob(
+			int(offer.ID),
 			offer.OfferData.RepeatNumb,
 			offer.OfferData.RepeatTime,
 		)
@@ -74,8 +74,8 @@ func UpdateOfferJob(ctx *fasthttp.RequestCtx) {
 			return
 		}
 
-		offerJob := NewOfferJob(int(offer.ID),
-			offer.Title,
+		offerJob := NewOfferJob(
+			int(offer.ID),
 			offer.OfferData.RepeatNumb,
 			offer.OfferData.RepeatTime,
 		)

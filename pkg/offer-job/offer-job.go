@@ -16,7 +16,6 @@ var (
 type OfferJob struct {
 	ch         chan int
 	offerID    int
-	name       string
 	repeatNumb uint8
 	repeatTime string
 }
@@ -26,11 +25,10 @@ func init() {
 	cronJobs.Location()
 }
 
-func NewOfferJob(offerID int, name string, repeatNumb uint8, repeatTime string) *OfferJob {
+func NewOfferJob(offerID int, repeatNumb uint8, repeatTime string) *OfferJob {
 	return &OfferJob{
 		ch:         make(chan int),
 		offerID:    offerID,
-		name:       name,
 		repeatNumb: repeatNumb,
 		repeatTime: repeatTime,
 	}
