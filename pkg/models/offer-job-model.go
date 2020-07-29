@@ -12,11 +12,11 @@ import (
 type OfferJobModel interface {
 	StartJob()
 	cronJobWorker()
-	removeJobByID() error
+	removeJobByID()
 }
 
 type OfferJob struct {
-	ch           chan bool
+	done         chan bool
 	OfferID      int
 	repeatNumb   uint8
 	repeatTime   string
@@ -42,7 +42,7 @@ func init() {
 
 func NewOfferJob(offerID int, repeatNumb uint8, repeatTime string, offers []byte) *OfferJob {
 	return &OfferJob{
-		ch:           make(chan bool),
+		done:         make(chan bool),
 		OfferID:      offerID,
 		repeatNumb:   repeatNumb,
 		repeatTime:   repeatTime,
@@ -53,8 +53,6 @@ func NewOfferJob(offerID int, repeatNumb uint8, repeatTime string, offers []byte
 
 func (offerJob *OfferJob) StartJob() {
 	go offerJob.cronJobWorker()
-	<-offerJob.ch
-	_ = offerJob.removeJobByID()
 }
 
 func (offerJob *OfferJob) cronJobWorker() {
@@ -62,35 +60,32 @@ func (offerJob *OfferJob) cronJobWorker() {
 		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
 		cronID, err := cronJob.AddFunc(spec, func() {
 			if offerJob.repeatedNumb == offerJob.repeatNumb {
-				offerJob.ch <- true
+				offerJob.done <- true
 				return
 			}
-			SendOffer(offerJob.offers)
+			SendOfferToMBB(offerJob.offers)
 			offerJob.repeatedNumb++
 		})
-
 		if err != nil {
 			fmt.Printf("Error cronJobWorker: %v", err)
-			close(offerJob.ch)
+			offerJob.done <- true
 			return
 		}
 		jobIDs[offerJob.OfferID] = cronID
-
 		select {
-		case <-offerJob.ch:
-			close(offerJob.ch)
+		case <-offerJob.done:
+			offerJob.removeJobByID()
+			close(offerJob.done)
 			return
 		}
 	}
 }
 
-func (offerJob *OfferJob) removeJobByID() error {
+func (offerJob *OfferJob) removeJobByID() {
 	if cronID, ok := jobIDs[offerJob.OfferID]; ok {
 		cronJob.Remove(cronID)
 		delete(jobIDs, offerJob.OfferID)
-		return nil
 	}
-	return errors.New("Not Found CronJob")
 }
 
 func DeleteJobByID(offerID int) error {
@@ -99,7 +94,7 @@ func DeleteJobByID(offerID int) error {
 		delete(jobIDs, offerID)
 		return nil
 	}
-	return nil
+	return errors.New(fmt.Sprintf("Not Found id %v", offerID))
 }
 
 func GetRunningJobs() []Entry {
