@@ -57,7 +57,7 @@ func (offerJob *OfferJob) StartJob() {
 
 func (offerJob *OfferJob) cronJobWorker() {
 	for {
-		spec := fmt.Sprintf("* %s * * *", offerJob.repeatTime)
+		spec := fmt.Sprintf("0 %s * * *", offerJob.repeatTime)
 		cronID, err := cronJob.AddFunc(spec, func() {
 			if offerJob.repeatedNumb == offerJob.repeatNumb {
 				offerJob.done <- true
