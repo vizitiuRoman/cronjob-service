@@ -10,8 +10,7 @@ import (
 )
 
 type OfferJobModel interface {
-	StartJob()
-	cronJobWorker()
+	OfferCronJob()
 	removeJobByID()
 }
 
@@ -51,11 +50,7 @@ func NewOfferJob(offerID int, repeatNumb uint8, repeatTime string, offers []byte
 	}
 }
 
-func (offerJob *OfferJob) StartJob() {
-	go offerJob.cronJobWorker()
-}
-
-func (offerJob *OfferJob) cronJobWorker() {
+func (offerJob *OfferJob) OfferCronJob() {
 	for {
 		spec := fmt.Sprintf("0 %s * * *", offerJob.repeatTime)
 		cronID, err := cronJob.AddFunc(spec, func() {
