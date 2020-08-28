@@ -1,11 +1,11 @@
-package routes
+package server
 
 import (
 	. "github.com/cronjob-service/pkg/controllers"
 	. "github.com/fasthttp/router"
 )
 
-func InitRoutes() *Router {
+func initControllers() *Router {
 	router := New()
 
 	router.GET("/api/jobs", GetJobs)
