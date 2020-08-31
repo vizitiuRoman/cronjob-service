@@ -39,7 +39,7 @@ func StartOfferJob(ctx *fasthttp.RequestCtx) {
 			offer.OfferData.RepeatTime,
 			offersBytes.Bytes(),
 		)
-		go offerJob.OfferCronJob()
+		go offerJob.OfferJob()
 	}
 
 	JSON(ctx, fasthttp.StatusOK, true)
@@ -80,7 +80,7 @@ func UpdateOfferJob(ctx *fasthttp.RequestCtx) {
 			offer.OfferData.RepeatTime,
 			offersBytes.Bytes(),
 		)
-		go offerJob.OfferCronJob()
+		go offerJob.OfferJob()
 	}
 
 	JSON(ctx, fasthttp.StatusOK, true)

@@ -7,10 +7,11 @@ import (
 
 	. "github.com/cronjob-service/pkg/client"
 	"github.com/robfig/cron/v3"
+	"go.uber.org/zap"
 )
 
 type OfferJobModel interface {
-	OfferCronJob()
+	OfferJob()
 	removeJobByID()
 }
 
@@ -50,7 +51,7 @@ func NewOfferJob(offerID int, repeatNumb uint8, repeatTime string, offers []byte
 	}
 }
 
-func (offerJob *OfferJob) OfferCronJob() {
+func (offerJob *OfferJob) OfferJob() {
 	for {
 		spec := fmt.Sprintf("0 %s * * *", offerJob.repeatTime)
 		cronID, err := cronJob.AddFunc(spec, func() {
@@ -62,7 +63,7 @@ func (offerJob *OfferJob) OfferCronJob() {
 			offerJob.repeatedNumb++
 		})
 		if err != nil {
-			fmt.Printf("Error cronJobWorker: %v", err)
+			zap.S().Errorf("Cron job error: %v", err)
 			offerJob.done <- true
 			return
 		}
@@ -89,7 +90,7 @@ func DeleteJobByID(offerID int) error {
 		delete(jobIDs, offerID)
 		return nil
 	}
-	return errors.New(fmt.Sprintf("Not Found id %v", offerID))
+	return errors.New(fmt.Sprintf("Not found offer id %v", offerID))
 }
 
 func GetRunningJobs() []Entry {

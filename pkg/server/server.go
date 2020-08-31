@@ -8,60 +8,70 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/valyala/fasthttp"
+	"go.uber.org/zap"
 )
 
-type CronJobServer interface {
-	StartServer()
-	wait(listenCh chan error, osSignals chan os.Signal)
+type CronJobService interface {
+	StartService()
+	wait()
 }
 
-type Server struct {
-	Controllers fasthttp.RequestHandler
-	Port        string
+type Service struct {
+	controllers fasthttp.RequestHandler
+	port        string
+	osSignals   chan os.Signal
+	listenCh    chan error
 }
 
-func ProvideServer() (*Server, error) {
+func init() {
 	err := godotenv.Load()
 	if err != nil {
-		return &Server{}, err
+		zap.S().Fatalf("Load env error: %v", err)
+	}
+
+	err = initLogger()
+	if err != nil {
+		zap.S().Fatalf("InitLogger error: %v", err)
 	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "4041"
+		zap.S().Fatalf("PORT env does not exist")
 	}
-
-	return &Server{
-		Controllers: initControllers().Handler,
-		Port:        port,
-	}, nil
 }
 
-func (srv *Server) StartServer() {
+func NewService() *Service {
+	return &Service{
+		controllers: initControllers().Handler,
+		port:        os.Getenv("PORT"),
+		osSignals:   make(chan os.Signal, 1),
+		listenCh:    make(chan error, 1),
+	}
+}
+
+func (srv *Service) StartService() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	listenCh := make(chan error, 1)
 	go func(listen chan error) {
-		log.Println("CronJob-Service started port: " + srv.Port)
-		listen <- fasthttp.ListenAndServe(":"+srv.Port, srv.Controllers)
-	}(listenCh)
+		zap.S().Info("CronJob Service started on port: " + srv.port)
+		listen <- fasthttp.ListenAndServe(":"+srv.port, srv.controllers)
+	}(srv.listenCh)
 
-	osSignals := make(chan os.Signal, 1)
-	signal.Notify(osSignals, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(srv.osSignals, syscall.SIGINT, syscall.SIGTERM)
 
-	srv.wait(listenCh, osSignals)
+	srv.wait()
 }
 
-func (srv *Server) wait(listenCh chan error, osSignals chan os.Signal) {
+func (srv *Service) wait() {
 	for {
 		select {
-		case err := <-listenCh:
+		case err := <-srv.listenCh:
 			if err != nil {
-				log.Fatal("Listener error: " + err.Error())
+				zap.S().Fatalf("Listener error: %v", err)
 			}
 			os.Exit(0)
-		case err := <-osSignals:
-			log.Fatal("Shutdown signal: " + err.String())
+		case err := <-srv.osSignals:
+			zap.S().Fatalf("Shutdown signal: %v", err.String())
 		}
 	}
 }
